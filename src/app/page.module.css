@@ -220,3 +220,23 @@
   font-size: var(--font-md);
   color: rgba(255,255,255,0.8);
 }
+
+.btnAdmin {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  background-color: rgba(255,255,255,0.08);
+  color: var(--color-gray-300);
+  font-size: var(--font-md);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.2s;
+}
+
+.btnAdmin:hover {
+  background-color: rgba(255,255,255,0.15);
+  color: var(--color-white);
+}
