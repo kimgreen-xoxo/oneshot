@@ -1,0 +1,179 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.title {
+  font-size: var(--font-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-secondary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.client {
+  font-size: var(--font-md);
+  font-weight: var(--weight-bold);
+  color: var(--color-secondary);
+}
+
+.meta {
+  font-size: var(--font-sm);
+  color: var(--color-gray-400);
+}
+
+.badge {
+  font-size: var(--font-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+}
+
+.badgeWaiting {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.badgeApproved {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badgeRejected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.prompt {
+  background-color: var(--color-gray-100);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.promptLabel {
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-gray-400);
+}
+
+.promptText {
+  font-size: var(--font-sm);
+  color: var(--color-secondary);
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.resultImage {
+  width: 100%;
+  max-width: 600px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-200);
+}
+
+.resultLabel {
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-gray-400);
+}
+
+.resultImage {
+  width: 100%;
+  max-width: 600px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-200);
+}
+
+.resultText {
+  font-size: var(--font-sm);
+  color: var(--color-secondary);
+  line-height: 1.6;
+  background-color: var(--color-gray-100);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.btnApprove {
+  background-color: var(--color-success);
+  color: var(--color-white);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnApprove:hover {
+  opacity: 0.85;
+}
+
+.btnReject {
+  background-color: var(--color-error);
+  color: var(--color-white);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnReject:hover {
+  opacity: 0.85;
+}
+
+.btnRegenerate {
+  background-color: var(--color-gray-200);
+  color: var(--color-secondary);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnRegenerate:hover {
+  opacity: 0.85;
+}

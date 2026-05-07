@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+}
+
+.main {
+  margin-left: 220px;
+  width: calc(100% - 220px);
+  min-height: 100vh;
+  background-color: var(--color-gray-100);
+}
+
+.content {
+  padding: calc(60px + var(--space-xl)) var(--space-xl) var(--space-xl);
+}

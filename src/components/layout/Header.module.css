@@ -1,0 +1,25 @@
+.header {
+  height: 60px;
+  background-color: var(--color-white);
+  border-bottom: 1px solid var(--color-gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-xl);
+  position: fixed;
+  top: 0;
+  left: 220px;
+  right: 0;
+  z-index: 100;
+}
+
+.title {
+  font-size: var(--font-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-secondary);
+}
+
+.profile {
+  font-size: var(--font-sm);
+  color: var(--color-gray-400);
+}
