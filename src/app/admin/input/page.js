@@ -157,9 +157,9 @@ export default function InputPage() {
 ${form.kpi || "미입력"}
 
 [발행 스케줄]
-주기: ${form.schedule || '미입력'}
-시간대: ${timeOptions.find(t => t.value === form.publishTime)?.label || '미입력'}
-시작일: ${form.startDate || '미입력'}
+주기: ${form.schedule || "미입력"}
+시간대: ${timeOptions.find((t) => t.value === form.publishTime)?.label || "미입력"}
+시작일: ${form.startDate || "미입력"}
 
 [디자인 레퍼런스]
 브랜드 컬러: ${form.brandColor}
@@ -374,51 +374,55 @@ ${form.kpi || "미입력"}
             </div>
           </div>
 
-{/* 발행 스케줄 */}
-<div className={styles.section}>
-  <h3 className={styles.sectionTitle}>발행 스케줄</h3>
+          {/* 발행 스케줄 */}
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>발행 스케줄</h3>
 
-  <div className={styles.field}>
-    <label className={styles.label}>발행 주기</label>
-    <div className={styles.tagGroup}>
-      {scheduleOptions.map((item) => (
-        <button
-          key={item}
-          onClick={() => setForm((prev) => ({ ...prev, schedule: item }))}
-          className={`${styles.tag} ${form.schedule === item ? styles.tagActive : ''}`}
-        >
-          {item}
-        </button>
-      ))}
-    </div>
-  </div>
+            <div className={styles.field}>
+              <label className={styles.label}>발행 주기</label>
+              <div className={styles.tagGroup}>
+                {scheduleOptions.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() =>
+                      setForm((prev) => ({ ...prev, schedule: item }))
+                    }
+                    className={`${styles.tag} ${form.schedule === item ? styles.tagActive : ""}`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-  <div className={styles.field}>
-    <label className={styles.label}>발행 시간대</label>
-    <div className={styles.tagGroup}>
-      {timeOptions.map((item) => (
-        <button
-          key={item.value}
-          onClick={() => setForm((prev) => ({ ...prev, publishTime: item.value }))}
-          className={`${styles.tag} ${form.publishTime === item.value ? styles.tagActive : ''}`}
-        >
-          {item.label}
-        </button>
-      ))}
-    </div>
-  </div>
+            <div className={styles.field}>
+              <label className={styles.label}>발행 시간대</label>
+              <div className={styles.tagGroup}>
+                {timeOptions.map((item) => (
+                  <button
+                    key={item.value}
+                    onClick={() =>
+                      setForm((prev) => ({ ...prev, publishTime: item.value }))
+                    }
+                    className={`${styles.tag} ${form.publishTime === item.value ? styles.tagActive : ""}`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-  <div className={styles.field}>
-    <label className={styles.label}>시작일</label>
-    <input
-      type="date"
-      name="startDate"
-      value={form.startDate}
-      onChange={handleChange}
-      className={styles.input}
-    />
-  </div>
-</div>
+            <div className={styles.field}>
+              <label className={styles.label}>시작일</label>
+              <input
+                type="date"
+                name="startDate"
+                value={form.startDate}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            </div>
+          </div>
 
           {/* 디자인 레퍼런스 */}
           <div className={styles.section}>
