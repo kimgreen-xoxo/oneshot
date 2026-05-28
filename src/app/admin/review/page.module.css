@@ -287,3 +287,28 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-gray-200);
 }
+.imageWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.btnGenerateImage {
+  align-self: flex-start;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnGenerateImage:hover { opacity: 0.85; }
+
+.btnGenerateImage:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

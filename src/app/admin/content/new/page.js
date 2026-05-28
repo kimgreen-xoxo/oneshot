@@ -1,35 +1,94 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './page.module.css'
 
-const clients = ['김철수', '이영희', '박민수', '최지원']
 const channels = ['Instagram', 'YouTube', 'TikTok', '네이버 블로그', '카카오 채널']
 const contentTypes = ['텍스트', '이미지', '영상']
 
 export default function NewContentPage() {
+  const [clients, setClients] = useState([])
   const [form, setForm] = useState({
     client: '',
     channel: '',
     type: '',
     keyword: '',
   })
-  const [status, setStatus] = useState('idle') // idle / loading / done
+  const [status, setStatus] = useState('idle')
+  const [result, setResult] = useState(null)
+  const [imageBase64, setImageBase64] = useState(null)
+
+  // 구글시트에서 고객 목록 불러오기
+  useEffect(() => {
+    fetch('/api/clients')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setClients(data.data.map((c) => c.clientName).filter(Boolean))
+        }
+      })
+      .catch((err) => console.error('고객 목록 오류:', err))
+  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!form.client || !form.channel || !form.type || !form.keyword) {
       alert('모든 항목을 입력해주세요.')
       return
     }
     setStatus('loading')
-    setTimeout(() => {
-      setStatus('done')
-    }, 2000)
+    setResult(null)
+    setImageBase64(null)
+
+    try {
+      if (form.type === '텍스트') {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clientName: form.client,
+            keyword: form.keyword,
+            channelSettings: { [form.channel]: {} },
+          }),
+        })
+        const data = await response.json()
+        if (data.success) {
+          setResult(data.data)
+          setStatus('done')
+        } else {
+          alert('생성 실패: ' + data.error)
+          setStatus('idle')
+        }
+      } else if (form.type === '이미지') {
+        const response = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clientName: form.client,
+            keyword: form.keyword,
+            channel: form.channel,
+          }),
+        })
+        const data = await response.json()
+        if (data.success) {
+          setImageBase64(`data:${data.image.mimeType};base64,${data.image.base64}`)
+          setStatus('done')
+        } else {
+          alert('생성 실패: ' + data.error)
+          setStatus('idle')
+        }
+      } else {
+        // 영상은 아직 미구현
+        setTimeout(() => setStatus('done'), 2000)
+      }
+    } catch (error) {
+      alert('오류 발생: ' + error.message)
+      setStatus('idle')
+    }
   }
 
   return (
@@ -93,7 +152,7 @@ export default function NewContentPage() {
             className={styles.generateBtn}
             disabled={status === 'loading'}
           >
-            {status === 'loading' ? '생성 중...' : '✨ AI 생성 시작'}
+            {status === 'loading' ? '⏳ 생성 중...' : '✨ AI 생성 시작'}
           </button>
         </div>
 
@@ -118,16 +177,11 @@ export default function NewContentPage() {
             <div className={styles.doneState}>
               <div className={styles.resultPreview}>
                 {form.type === '텍스트' && (
-                  <p className={styles.resultText}>
-                    {form.keyword} 관련 AI 생성 텍스트 결과입니다.
-                    강남에서 {form.keyword}을(를) 고민하고 계신가요?
-                    저희는 10년 경력의 전문가가 직접 상담합니다.
-                    지금 바로 문의해보세요.
-                  </p>
+                  <p className={styles.resultText}>{result}</p>
                 )}
-                {form.type === '이미지' && (
+                {form.type === '이미지' && imageBase64 && (
                   <img
-                    src={`https://placehold.co/600x400?text=${form.keyword}`}
+                    src={imageBase64}
                     alt="AI 생성 이미지"
                     className={styles.resultImage}
                   />
@@ -145,10 +199,7 @@ export default function NewContentPage() {
                 <button className={styles.btnReject}>❌ 반려</button>
                 <button
                   className={styles.btnRegenerate}
-                  onClick={() => {
-                    setStatus('loading')
-                    setTimeout(() => setStatus('done'), 2000)
-                  }}
+                  onClick={handleGenerate}
                 >
                   🔄 재생성
                 </button>
@@ -156,7 +207,6 @@ export default function NewContentPage() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   )

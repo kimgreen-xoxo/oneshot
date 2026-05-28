@@ -3,6 +3,7 @@
 import { useState } from "react";
 import styles from "./page.module.css";
 import { useRouter } from "next/navigation";
+import ChannelModal from "@/components/ui/ChannelModal";
 
 const industries = [
   "부동산",
@@ -52,6 +53,7 @@ const tones = [
   "유머러스/재미있는",
   "감성적/스토리텔링",
 ];
+
 const toneMoods = {
   "전문적/신뢰감": {
     colors: ["#1A1A2E", "#2E3A59", "#FFFFFF", "#00C4FF"],
@@ -92,6 +94,7 @@ const timeOptions = [
   { label: "퇴근 (18~20시)", value: "evening" },
   { label: "심야 (22~24시)", value: "night" },
 ];
+
 export default function InputPage() {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -103,7 +106,7 @@ export default function InputPage() {
     region: "",
     bannedWords: "",
     range: [],
-    channels: [],
+    channelSettings: {},
     hasAd: false,
     adBudget: "",
     kpi: "",
@@ -115,6 +118,10 @@ export default function InputPage() {
     publishTime: "evening",
     startDate: "",
   });
+
+  const [generating, setGenerating] = useState(false);
+  const [result, setResult] = useState(null);
+  const [modalChannel, setModalChannel] = useState(null);
 
   const toggleItem = (field, value) => {
     setForm((prev) => ({
@@ -133,6 +140,9 @@ export default function InputPage() {
     }));
   };
 
+  // channelSettings에서 활성 채널 목록 추출
+  const activeChannels = Object.keys(form.channelSettings);
+
   const generatePrompt = () => {
     if (!form.clientName)
       return "고객명을 입력하면 AI 프롬프트가 자동 생성됩니다.";
@@ -150,7 +160,7 @@ export default function InputPage() {
 [운영]
 금지표현: ${form.bannedWords || "없음"}
 제작범위: ${form.range.join(", ") || "미입력"}
-채널: ${form.channels.join(", ") || "미입력"}
+채널: ${activeChannels.join(", ") || "미입력"}
 광고집행: ${form.hasAd ? `예 (예산: ${form.adBudget || "미입력"})` : "아니오"}
 
 [KPI]
@@ -169,7 +179,38 @@ ${form.kpi || "미입력"}
     `.trim();
   };
 
-  const handleSubmit = () => {
+  const handleGenerate = async () => {
+    if (!form.clientName) {
+      alert("고객명을 먼저 입력해주세요.");
+      return;
+    }
+    setGenerating(true);
+    setResult(null);
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await response.json();
+      console.log("응답:", JSON.stringify(data));
+      if (data.success) {
+        setResult(
+          typeof data.data === "string"
+            ? data.data
+            : JSON.stringify(data.data, null, 2),
+        );
+      } else {
+        alert("생성 실패: " + data.error);
+      }
+    } catch (error) {
+      alert("오류 발생: " + error.message);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!form.clientName) {
       alert("고객명을 입력해주세요.");
       return;
@@ -190,7 +231,7 @@ ${form.kpi || "미입력"}
       alert("키워드를 입력해주세요.");
       return;
     }
-    if (form.channels.length === 0) {
+    if (activeChannels.length === 0) {
       alert("채널을 선택해주세요.");
       return;
     }
@@ -198,10 +239,23 @@ ${form.kpi || "미입력"}
       alert("KPI 목표를 입력해주세요.");
       return;
     }
-    console.log("제출 데이터:", form);
-    alert("고객 정보가 저장되었습니다.");
-  };
 
+    try {
+      const response = await fetch("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert("고객 정보가 저장되었습니다.");
+      } else {
+        alert("저장 실패: " + data.error);
+      }
+    } catch (error) {
+      alert("오류 발생: " + error.message);
+    }
+  };
   return (
     <div className={styles.container}>
       <div className={styles.topRow}>
@@ -292,70 +346,33 @@ ${form.kpi || "미입력"}
             </div>
           </div>
 
-          {/* 운영 정보 */}
+          {/* 채널 설정 */}
           <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>운영 정보</h3>
+            <h3 className={styles.sectionTitle}>채널 설정</h3>
             <div className={styles.field}>
-              <label className={styles.label}>금지 표현</label>
-              <input
-                name="bannedWords"
-                value={form.bannedWords}
-                onChange={handleChange}
-                placeholder="예: 100% 보장, 최고, 1등"
-                className={styles.input}
-              />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>제작 범위 (복수 선택)</label>
+              <label className={styles.label}>
+                채널 선택 (클릭하면 상세 설정)
+              </label>
               <div className={styles.tagGroup}>
-                {ranges.map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => toggleItem("range", item)}
-                    className={`${styles.tag} ${form.range.includes(item) ? styles.tagActive : ""}`}
-                  >
-                    {item}
-                  </button>
-                ))}
+                {channels.map((item) => {
+                  const isSet = !!form.channelSettings[item];
+                  return (
+                    <button
+                      key={item}
+                      onClick={() => setModalChannel(item)}
+                      className={`${styles.tag} ${isSet ? styles.tagActive : ""}`}
+                    >
+                      {isSet ? "✅ " : ""}
+                      {item}
+                      {isSet && (
+                        <span className={styles.tagSub}>
+                          {form.channelSettings[item].contentTypes.join("/")}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>채널 현황 (복수 선택)</label>
-              <div className={styles.tagGroup}>
-                {channels.map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => toggleItem("channels", item)}
-                    className={`${styles.tag} ${form.channels.includes(item) ? styles.tagActive : ""}`}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>광고 집행 여부</label>
-              <div className={styles.checkboxRow}>
-                <input
-                  type="checkbox"
-                  name="hasAd"
-                  checked={form.hasAd}
-                  onChange={handleChange}
-                  id="hasAd"
-                />
-                <label htmlFor="hasAd" className={styles.checkboxLabel}>
-                  광고 집행 예정
-                </label>
-              </div>
-              {form.hasAd && (
-                <input
-                  name="adBudget"
-                  value={form.adBudget}
-                  onChange={handleChange}
-                  placeholder="예: 월 100만원"
-                  className={styles.input}
-                />
-              )}
             </div>
           </div>
 
@@ -377,7 +394,6 @@ ${form.kpi || "미입력"}
           {/* 발행 스케줄 */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>발행 스케줄</h3>
-
             <div className={styles.field}>
               <label className={styles.label}>발행 주기</label>
               <div className={styles.tagGroup}>
@@ -394,7 +410,6 @@ ${form.kpi || "미입력"}
                 ))}
               </div>
             </div>
-
             <div className={styles.field}>
               <label className={styles.label}>발행 시간대</label>
               <div className={styles.tagGroup}>
@@ -411,7 +426,6 @@ ${form.kpi || "미입력"}
                 ))}
               </div>
             </div>
-
             <div className={styles.field}>
               <label className={styles.label}>시작일</label>
               <input
@@ -535,18 +549,39 @@ ${form.kpi || "미입력"}
 
           <button
             className={styles.generateBtn}
-            onClick={() => {
-              if (!form.clientName) {
-                alert("고객명을 먼저 입력해주세요.");
-                return;
-              }
-              router.push("/admin/content/new");
-            }}
+            onClick={handleGenerate}
+            disabled={generating}
           >
-            ✨ AI 콘텐츠 생성 시작
+            {generating ? "⏳ AI 생성 중..." : "✨ AI 콘텐츠 생성 시작"}
           </button>
+
+          {result && (
+            <div className={styles.resultBox}>
+              <h4 className={styles.resultTitle}>AI 생성 결과</h4>
+              <pre className={styles.resultText}>{result}</pre>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* ChannelModal */}
+      {modalChannel && (
+        <ChannelModal
+          channel={modalChannel}
+          initialData={form.channelSettings[modalChannel] || null}
+          onSave={(data) => {
+            setForm((prev) => ({
+              ...prev,
+              channelSettings: {
+                ...prev.channelSettings,
+                [data.channel]: data,
+              },
+            }));
+            setModalChannel(null);
+          }}
+          onClose={() => setModalChannel(null)}
+        />
+      )}
     </div>
   );
 }
