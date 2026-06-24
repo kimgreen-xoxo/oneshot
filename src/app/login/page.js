@@ -28,11 +28,10 @@ export default function LoginPage() {
 
     if (!data?.session) {
       setLoading(false)
-      setError('로그인은 됐지만 세션이 생성되지 않았습니다. (data.session 없음)')
+      setError('로그인은 됐지만 세션이 생성되지 않았습니다.')
       return
     }
 
-    // 세션이 쿠키에 실제로 반영됐는지 확인하기 위해 잠깐 대기 후 이동
     window.location.href = '/'
   }
 
