@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { supabaseClient } from '@/lib/supabaseClient'
 import styles from './Sidebar.module.css'
 
 const menus = [
@@ -15,21 +17,60 @@ const menus = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleLogout = async () => {
+    await supabaseClient.auth.signOut()
+    window.location.href = '/login'
+  }
+
+  const closeSidebar = () => setIsOpen(false)
 
   return (
-    <aside className={styles.sidebar}>
-      <div className={styles.logo}>OneShot</div>
-      <nav>
-        {menus.map((menu) => (
-          <Link
-            key={menu.href}
-            href={menu.href}
-            className={`${styles.menuItem} ${pathname === menu.href ? styles.active : ''}`}
+    <>
+      <button
+        type="button"
+        className={styles.menuToggle}
+        onClick={() => setIsOpen(true)}
+        aria-label="메뉴 열기"
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+
+      {isOpen && (
+        <div className={styles.overlay} onClick={closeSidebar} />
+      )}
+
+      <aside className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <div className={styles.logo}>OneShot</div>
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={closeSidebar}
+            aria-label="메뉴 닫기"
           >
-            {menu.label}
-          </Link>
-        ))}
-      </nav>
-    </aside>
+            ✕
+          </button>
+        </div>
+        <nav>
+          {menus.map((menu) => (
+            <Link
+              key={menu.href}
+              href={menu.href}
+              onClick={closeSidebar}
+              className={`${styles.menuItem} ${pathname === menu.href ? styles.active : ''}`}
+            >
+              {menu.label}
+            </Link>
+          ))}
+        </nav>
+        <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
+          로그아웃
+        </button>
+      </aside>
+    </>
   )
 }

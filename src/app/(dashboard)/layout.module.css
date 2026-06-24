@@ -12,3 +12,14 @@
 .content {
   padding: calc(60px + var(--space-xl)) var(--space-xl) var(--space-xl);
 }
+
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .content {
+    padding: calc(40px + var(--space-xxl)) var(--space-md) var(--space-md);
+  }
+}
