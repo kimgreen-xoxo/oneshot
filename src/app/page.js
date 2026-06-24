@@ -1,107 +1,76 @@
-import styles from "./page.module.css";
-import Link from "next/link";
+import styles from './page.module.css'
+import Link from 'next/link'
 
-const services = [
-  {
-    icon: "🤖",
-    title: "AI 콘텐츠 생성",
-    desc: "텍스트, 이미지, 영상을 AI가 자동으로 생성합니다. 업종과 키워드만 입력하면 끝.",
-  },
-  {
-    icon: "📱",
-    title: "SNS 자동 업로드",
-    desc: "Instagram, YouTube, 네이버 블로그까지 검수 후 자동으로 업로드합니다.",
-  },
-  {
-    icon: "📊",
-    title: "성과 리포트",
-    desc: "채널별 노출수, CTR, DB, ROAS를 자동으로 집계해 월간 리포트를 제공합니다.",
-  },
-];
+const menus = [
+  { icon: '✨', title: '새 콘텐츠 생성', desc: 'AI로 텍스트 / 이미지 / 영상 생성', href: '/content/new', color: 'var(--color-primary)' },
+  { icon: '📋', title: '고객 DB 입력', desc: '업종 / 키워드 / 채널 / KPI 입력', href: '/input', color: 'var(--color-accent)' },
+  { icon: '🔍', title: '검수 대기', desc: 'AI 생성 결과 승인 / 반려', href: '/review', color: 'var(--color-warning)' },
+  { icon: '👥', title: '리드 관리', desc: '리드 목록 / 상태 관리', href: '/leads', color: '#7C3AED' },
+  { icon: '📊', title: '리포트', desc: '채널별 성과 / 월간 리포트', href: '/report', color: 'var(--color-success)' },
+  { icon: '📱', title: '채널 현황', desc: 'SNS 채널 상태 / 업로드 현황', href: '/content', color: '#DB2777' },
+]
 
-const steps = [
-  { step: "01", title: "고객 입력", desc: "업종, 키워드, 채널, KPI 입력" },
-  { step: "02", title: "AI 생성", desc: "텍스트 / 이미지 / 영상 자동 생성" },
-  { step: "03", title: "검수", desc: "관리자 승인 / 반려 / 재생성" },
-  { step: "04", title: "자동 업로드", desc: "SNS 채널 자동 발행" },
-  { step: "05", title: "리포트", desc: "성과 측정 및 월간 리포트" },
-];
+const notifications = [
+  { id: 1, type: '검수', message: '김철수 / 부동산 이미지 검수 대기중', time: '10분 전' },
+  { id: 2, type: '리드', message: '새 리드 등록 - 이영희 / 병원', time: '30분 전' },
+  { id: 3, type: '업로드', message: '박민수 / 학원 콘텐츠 업로드 완료', time: '1시간 전' },
+  { id: 4, type: '생성', message: '최지원 / 뷰티 콘텐츠 생성 완료', time: '2시간 전' },
+]
 
-export default function Home() {
+const typeColors = {
+  '검수': styles.typeReview,
+  '리드': styles.typeLead,
+  '업로드': styles.typeUpload,
+  '생성': styles.typeCreate,
+}
+
+export default function AdminPage() {
+  const today = new Date().toLocaleDateString('ko-KR', {
+    year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
+  })
+
   return (
     <div className={styles.container}>
-      {/* Hero */}
-      <section className={styles.hero}>
-        <p className={styles.heroTag}>AI 기반 콘텐츠 자동화 플랫폼</p>
-        <h1 className={styles.heroTitle}>
-          온라인 홍보,
-          <br />
-          원샷이 한 번에 해결합니다.
-        </h1>
-        <p className={styles.heroDesc}>
-          기획부터 실행, DB 수집과 리포트까지
-          <br />더 빠르고 체계적으로 연결합니다.
-        </p>
-        <div className={styles.heroButtons}>
-          <Link href="/apply" className={styles.btnPrimary}>
-            상담 신청하기
-          </Link>
-          <Link href="/service" className={styles.btnSecondary}>
-            서비스 소개
-          </Link>
+      <div className={styles.welcome}>
+        <div>
+          <h2 className={styles.welcomeTitle}>안녕하세요, 관리자님 👋</h2>
+          <p className={styles.welcomeDate}>{today}</p>
         </div>
-          <Link href="/admin" className={styles.btnAdmin}>
-            관리자모드
-          </Link>
-      </section>
-
-      {/* 서비스 소개 */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>서비스 소개</h2>
-        <p className={styles.sectionDesc}>
-          원샷 하나로 콘텐츠 생성부터 SNS 업로드까지 자동화합니다.
-        </p>
-        <div className={styles.serviceGrid}>
-          {services.map((s) => (
-            <div key={s.title} className={styles.serviceCard}>
-              <div className={styles.serviceIcon}>{s.icon}</div>
-              <h3 className={styles.serviceTitle}>{s.title}</h3>
-              <p className={styles.serviceDesc}>{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 프로세스 */}
-      <section className={styles.processSection}>
-        <h2 className={styles.sectionTitle}>어떻게 작동하나요?</h2>
-        <p className={styles.sectionDesc}>
-          5단계로 콘텐츠 생성부터 성과 측정까지 한 번에.
-        </p>
-        <div className={styles.steps}>
-          {steps.map((s, i) => (
-            <div key={s.step} className={styles.stepItem}>
-              <div className={styles.stepNumber}>{s.step}</div>
-              <h3 className={styles.stepTitle}>{s.title}</h3>
-              <p className={styles.stepDesc}>{s.desc}</p>
-              {i < steps.length - 1 && (
-                <div className={styles.stepArrow}>→</div>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className={styles.cta}>
-        <h2 className={styles.ctaTitle}>지금 바로 시작해보세요</h2>
-        <p className={styles.ctaDesc}>
-          복잡한 온라인 홍보, 원샷이 한 번에 해결합니다.
-        </p>
-        <Link href="/apply" className={styles.btnPrimary}>
-          무료 상담 신청
+        <Link href="/content/new" className={styles.newBtn}>
+          + 새 콘텐츠 생성
         </Link>
-      </section>
+      </div>
+
+      <div>
+        <h3 className={styles.sectionTitle}>업무 바로가기</h3>
+        <div className={styles.menuGrid}>
+          {menus.map((menu) => (
+            <Link key={menu.title} href={menu.href} className={styles.menuCard}>
+              <div className={styles.menuIcon} style={{ backgroundColor: menu.color + '20', color: menu.color }}>
+                {menu.icon}
+              </div>
+              <div className={styles.menuInfo}>
+                <h4 className={styles.menuTitle}>{menu.title}</h4>
+                <p className={styles.menuDesc}>{menu.desc}</p>
+              </div>
+              <span className={styles.menuArrow}>→</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className={styles.sectionTitle}>최근 알림</h3>
+        <div className={styles.notifList}>
+          {notifications.map((n) => (
+            <div key={n.id} className={styles.notifItem}>
+              <span className={styles.notifType + ' ' + typeColors[n.type]}>{n.type}</span>
+              <p className={styles.notifMessage}>{n.message}</p>
+              <span className={styles.notifTime}>{n.time}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
-  );
+  )
 }
