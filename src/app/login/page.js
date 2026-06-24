@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { supabaseClient } from '@/lib/supabaseClient'
 import styles from './page.module.css'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -17,20 +15,25 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    const { error: signInError } = await supabaseClient.auth.signInWithPassword({
+    const { data, error: signInError } = await supabaseClient.auth.signInWithPassword({
       email,
       password,
     })
 
-    setLoading(false)
-
     if (signInError) {
-      setError('이메일 또는 비밀번호가 올바르지 않습니다.')
+      setLoading(false)
+      setError(`로그인 실패: ${signInError.message}`)
       return
     }
 
-    router.push('/')
-    router.refresh()
+    if (!data?.session) {
+      setLoading(false)
+      setError('로그인은 됐지만 세션이 생성되지 않았습니다. (data.session 없음)')
+      return
+    }
+
+    // 세션이 쿠키에 실제로 반영됐는지 확인하기 위해 잠깐 대기 후 이동
+    window.location.href = '/'
   }
 
   return (
