@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { supabaseClient } from '@/lib/supabaseClient'
 import styles from './Sidebar.module.css'
 
 const menus = [
@@ -15,6 +16,13 @@ const menus = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await supabaseClient.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <aside className={styles.sidebar}>
@@ -30,6 +38,9 @@ export default function Sidebar() {
           </Link>
         ))}
       </nav>
+      <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
+        로그아웃
+      </button>
     </aside>
   )
 }
