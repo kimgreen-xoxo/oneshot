@@ -146,7 +146,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .doneState {
@@ -159,6 +161,9 @@
   border: 1px solid var(--color-gray-200);
   border-radius: var(--radius-md);
   padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
 }
 
 .resultText {
@@ -208,7 +213,9 @@
   transition: opacity 0.2s;
 }
 
-.btnApprove:hover { opacity: 0.85; }
+.btnApprove:hover {
+  opacity: 0.85;
+}
 
 .btnReject {
   flex: 1;
@@ -223,7 +230,9 @@
   transition: opacity 0.2s;
 }
 
-.btnReject:hover { opacity: 0.85; }
+.btnReject:hover {
+  opacity: 0.85;
+}
 
 .btnRegenerate {
   flex: 1;
@@ -238,4 +247,21 @@
   transition: opacity 0.2s;
 }
 
-.btnRegenerate:hover { opacity: 0.85; }
+.btnRegenerate:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .typeGroup {
+    flex-direction: column;
+  }
+
+  .inputPanel,
+  .resultPanel {
+    padding: var(--space-lg);
+  }
+}

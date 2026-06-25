@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import styles from './page.module.css'
 
 const channels = ['Instagram', 'YouTube', 'TikTok', '네이버 블로그', '카카오 채널']
-const contentTypes = ['텍스트', '이미지', '영상']
+const contentTypes = ['이미지', '영상', '카드뉴스']
 
 export default function NewContentPage() {
   const [clients, setClients] = useState([])
@@ -45,25 +45,26 @@ export default function NewContentPage() {
     setImageBase64(null)
 
     try {
-      if (form.type === '텍스트') {
-        const response = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            clientName: form.client,
-            keyword: form.keyword,
-            channelSettings: { [form.channel]: {} },
-          }),
-        })
-        const data = await response.json()
-        if (data.success) {
-          setResult(data.data)
-          setStatus('done')
-        } else {
-          alert('생성 실패: ' + data.error)
-          setStatus('idle')
-        }
-      } else if (form.type === '이미지') {
+      // 텍스트는 콘텐츠 유형과 무관하게 항상 생성
+      const textResponse = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientName: form.client,
+          keyword: form.keyword,
+          channelSettings: { [form.channel]: {} },
+        }),
+      })
+      const textData = await textResponse.json()
+      if (!textData.success) {
+        alert('텍스트 생성 실패: ' + textData.error)
+        setStatus('idle')
+        return
+      }
+      setResult(textData.data)
+
+      // 선택한 유형(이미지/영상/카드뉴스)을 추가로 생성
+      if (form.type === '이미지' || form.type === '카드뉴스') {
         const response = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -130,7 +131,7 @@ export default function NewContentPage() {
                   onClick={() => setForm((prev) => ({ ...prev, type: t }))}
                   className={`${styles.typeBtn} ${form.type === t ? styles.typeBtnActive : ''}`}
                 >
-                  {t === '텍스트' ? '📝' : t === '이미지' ? '🖼️' : '🎬'} {t}
+                  {t === '이미지' ? '🖼️' : t === '영상' ? '🎬' : '🗞️'} {t}
                 </button>
               ))}
             </div>
@@ -176,13 +177,14 @@ export default function NewContentPage() {
           {status === 'done' && (
             <div className={styles.doneState}>
               <div className={styles.resultPreview}>
-                {form.type === '텍스트' && (
+                {/* 텍스트는 콘텐츠 유형과 무관하게 항상 표시 */}
+                {result && (
                   <p className={styles.resultText}>{result}</p>
                 )}
-                {form.type === '이미지' && imageBase64 && (
+                {(form.type === '이미지' || form.type === '카드뉴스') && imageBase64 && (
                   <img
                     src={imageBase64}
-                    alt="AI 생성 이미지"
+                    alt={`AI 생성 ${form.type}`}
                     className={styles.resultImage}
                   />
                 )}

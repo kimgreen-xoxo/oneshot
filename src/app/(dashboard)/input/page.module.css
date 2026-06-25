@@ -26,6 +26,8 @@
   border: none;
   cursor: pointer;
   transition: opacity 0.2s;
+  width: 100%;
+  margin-top: var(--space-md);
 }
 
 .saveBtn:hover {
@@ -272,7 +274,7 @@
   width: 32px;
   height: 32px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: transform 0.2s;
 }
@@ -321,4 +323,19 @@
   font-size: var(--font-xs);
   margin-left: var(--space-xs);
   opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .typeGroup {
+    flex-direction: column;
+  }
+
+  .inputPanel,
+  .resultPanel {
+    padding: var(--space-lg);
+  }
 }

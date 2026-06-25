@@ -260,9 +260,6 @@ ${form.kpi || "미입력"}
     <div className={styles.container}>
       <div className={styles.topRow}>
         <h2 className={styles.title}>고객 등록</h2>
-        <button onClick={handleSubmit} className={styles.saveBtn}>
-          저장하기
-        </button>
       </div>
 
       <div className={styles.layout}>
@@ -505,6 +502,9 @@ ${form.kpi || "미입력"}
               )}
             </div>
           </div>
+            <button onClick={handleSubmit} className={styles.saveBtn}>
+              저장하기
+            </button>
         </div>
 
         {/* 우측 미리보기 패널 */}
