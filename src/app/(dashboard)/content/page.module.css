@@ -106,3 +106,10 @@
   background-color: var(--color-secondary);
   color: var(--color-white);
 }
+
+.emptyText {
+  text-align: center;
+  color: var(--color-gray-400);
+  font-size: var(--font-sm);
+  padding: var(--space-xxl) 0;
+}

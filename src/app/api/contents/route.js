@@ -5,19 +5,23 @@ export async function POST(request) {
   try {
     const body = await request.json()
 
-    const { error } = await supabase.from('contents').insert({
-      client_name: body.clientName || '',
-      channel: body.channel || '',
-      type: body.type || '',
-      prompt: body.prompt || '',
-      result: body.result || '',
-      status: body.status || '검수대기',
-      scheduled_date: body.scheduledDate || '',
-      image_url: body.imageUrl || '',
-    })
+    const { data, error } = await supabase
+      .from('contents')
+      .insert({
+        client_name: body.clientName || '',
+        channel: body.channel || '',
+        type: body.type || '',
+        prompt: body.prompt || '',
+        result: body.result || '',
+        status: body.status || '검수대기',
+        scheduled_date: body.scheduledDate || '',
+        image_url: body.imageUrl || '',
+      })
+      .select('id')
+      .single()
 
     if (error) throw new Error(error.message)
-    return Response.json({ success: true })
+    return Response.json({ success: true, id: data.id })
   } catch (error) {
     console.error('콘텐츠 저장 오류:', error)
     return Response.json({ success: false, error: error.message }, { status: 500 })
@@ -53,6 +57,7 @@ export async function GET(request) {
       status: row.status,
       scheduledDate: row.scheduled_date,
       imageUrl: row.image_url,
+      rejectionReason: row.rejection_reason,
     }))
 
     return Response.json({ success: true, data: contents })
@@ -61,15 +66,20 @@ export async function GET(request) {
   }
 }
 
-// 상태 업데이트
+// 상태 업데이트 (승인/반려, 반려 시 이유 포함)
 export async function PATCH(request) {
   try {
     const body = await request.json()
-    const { id, status } = body
+    const { id, status, rejectionReason } = body
+
+    const updatePayload = { status }
+    if (status === '반려') {
+      updatePayload.rejection_reason = rejectionReason || ''
+    }
 
     const { error } = await supabase
       .from('contents')
-      .update({ status })
+      .update(updatePayload)
       .eq('id', id)
 
     if (error) throw new Error(error.message)

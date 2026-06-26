@@ -27,6 +27,25 @@ export async function POST(request) {
       night: '심야 (22~24시)',
     }
 
+    // 같은 고객의 최근 반려 사례 조회 (최대 3건) → 같은 실수를 반복하지 않도록 프롬프트에 반영
+    let rejectionContext = ''
+    if (body.clientName) {
+      const { data: rejectedRows } = await supabase
+        .from('contents')
+        .select('result, rejection_reason')
+        .eq('client_name', body.clientName)
+        .eq('status', '반려')
+        .not('rejection_reason', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(3)
+
+      if (rejectedRows && rejectedRows.length > 0) {
+        rejectionContext = `\n[과거 반려 사례 — 아래와 같은 문제를 반복하지 마세요]\n${rejectedRows
+          .map((r, i) => `${i + 1}) 반려 이유: ${r.rejection_reason}`)
+          .join('\n')}\n`
+      }
+    }
+
     const prompt = `당신은 마케팅 콘텐츠 전문 카피라이터입니다. 아래 정보를 바탕으로 SNS 홍보 텍스트 3가지 버전을 작성해주세요.
 
 [고객 정보]
@@ -56,7 +75,7 @@ ${body.bannedWords || '없음'}
 
 [채널별 작성 가이드]
 ${channelGuideText || '- 일반적인 SNS 톤으로 작성'}
-
+${rejectionContext}
 [작성 지침]
 1. 위 채널별 작성 가이드의 스타일과 길이 규칙을 엄격히 따라주세요.
 2. 각 버전은 서로 다른 후킹 전략(질문형, 통계/숫자 강조형, 공감/스토리형 등)을 사용해 차별화해주세요.
@@ -86,20 +105,7 @@ ${channelGuideText || '- 일반적인 SNS 톤으로 작성'}
       return Response.json({ success: false, error: 'AI 응답 없음', raw: data }, { status: 500 })
     }
 
-    // Supabase 콘텐츠 저장
-    const { error } = await supabase.from('contents').insert({
-      client_name: body.clientName || '',
-      channel: channels.join(', '),
-      type: '텍스트',
-      prompt,
-      result,
-      status: '검수대기',
-      scheduled_date: body.startDate || '',
-      image_url: '',
-    })
-
-    if (error) console.error('콘텐츠 저장 오류:', error.message)
-
+    // 저장은 승인/반려 시점에 /api/contents에서 처리 (여기서는 생성만)
     return Response.json({ success: true, data: result })
   } catch (error) {
     return Response.json({ success: false, error: error.message }, { status: 500 })

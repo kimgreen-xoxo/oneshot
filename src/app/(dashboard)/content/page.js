@@ -1,46 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './page.module.css'
-
-const mockContents = [
-  {
-    id: 1,
-    client: '김철수',
-    industry: '부동산',
-    type: '이미지',
-    channel: 'Instagram',
-    status: '검수대기',
-    createdAt: '2026-04-25',
-  },
-  {
-    id: 2,
-    client: '이영희',
-    industry: '병원',
-    type: '영상',
-    channel: 'YouTube',
-    status: '승인완료',
-    createdAt: '2026-04-24',
-  },
-  {
-    id: 3,
-    client: '박민수',
-    industry: '학원',
-    type: '텍스트',
-    channel: '네이버 블로그',
-    status: '발행완료',
-    createdAt: '2026-04-23',
-  },
-  {
-    id: 4,
-    client: '최지원',
-    industry: '뷰티',
-    type: '이미지',
-    channel: 'Instagram',
-    status: '반려',
-    createdAt: '2026-04-22',
-  },
-]
 
 const statusColors = {
   '검수대기': styles.badgeWaiting,
@@ -53,10 +14,24 @@ const filters = ['전체', '검수대기', '승인완료', '발행완료', '반�
 
 export default function ContentPage() {
   const [filter, setFilter] = useState('전체')
+  const [contents, setContents] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/contents')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setContents(data.data)
+        }
+      })
+      .catch((err) => console.error('콘텐츠 목록 오류:', err))
+      .finally(() => setLoading(false))
+  }, [])
 
   const filtered = filter === '전체'
-    ? mockContents
-    : mockContents.filter((c) => c.status === filter)
+    ? contents
+    : contents.filter((c) => c.status === filter)
 
   return (
     <div className={styles.container}>
@@ -77,38 +52,42 @@ export default function ContentPage() {
 
       {/* 테이블 */}
       <div className={styles.card}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>고객명</th>
-              <th>업종</th>
-              <th>유형</th>
-              <th>채널</th>
-              <th>상태</th>
-              <th>생성일</th>
-              <th>액션</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((item) => (
-              <tr key={item.id}>
-                <td>{item.client}</td>
-                <td>{item.industry}</td>
-                <td>{item.type}</td>
-                <td>{item.channel}</td>
-                <td>
-                  <span className={`${styles.badge} ${statusColors[item.status]}`}>
-                    {item.status}
-                  </span>
-                </td>
-                <td>{item.createdAt}</td>
-                <td>
-                  <button className={styles.actionBtn}>상세보기</button>
-                </td>
+        {loading ? (
+          <p className={styles.emptyText}>불러오는 중...</p>
+        ) : filtered.length === 0 ? (
+          <p className={styles.emptyText}>해당 상태의 콘텐츠가 없습니다.</p>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>고객명</th>
+                <th>유형</th>
+                <th>채널</th>
+                <th>상태</th>
+                <th>생성일</th>
+                <th>액션</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.clientName}</td>
+                  <td>{item.type}</td>
+                  <td>{item.channel}</td>
+                  <td>
+                    <span className={`${styles.badge} ${statusColors[item.status]}`}>
+                      {item.status}
+                    </span>
+                  </td>
+                  <td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString('ko-KR') : '-'}</td>
+                  <td>
+                    <button className={styles.actionBtn}>상세보기</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )
