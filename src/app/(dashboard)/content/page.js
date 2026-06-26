@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import styles from './page.module.css'
 
 const statusColors = {
@@ -81,7 +82,9 @@ export default function ContentPage() {
                   </td>
                   <td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString('ko-KR') : '-'}</td>
                   <td>
-                    <button className={styles.actionBtn}>상세보기</button>
+                    <Link href={`/content/${item.id}`} className={styles.actionBtn}>
+                      상세보기
+                    </Link>
                   </td>
                 </tr>
               ))}

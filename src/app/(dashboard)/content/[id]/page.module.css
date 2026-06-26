@@ -1,0 +1,255 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  max-width: 720px;
+}
+
+.backLink {
+  font-size: var(--font-sm);
+  color: var(--color-gray-400);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--color-secondary);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: var(--font-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-secondary);
+}
+
+.badge {
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-full);
+}
+
+.badgeWaiting { background-color: #FFF3E0; color: #E65100; }
+.badgeApproved { background-color: #E8F5E9; color: #2E7D32; }
+.badgeDone { background-color: #E3F2FD; color: #1565C0; }
+.badgeRejected { background-color: #FFEBEE; color: #C62828; }
+
+.infoCard {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.infoRow {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.infoLabel {
+  width: 80px;
+  flex-shrink: 0;
+  font-size: var(--font-sm);
+  color: var(--color-gray-400);
+}
+
+.infoValue {
+  font-size: var(--font-sm);
+  color: var(--color-secondary);
+  font-weight: var(--weight-medium);
+}
+
+.contentCard {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionTitle {
+  font-size: var(--font-md);
+  font-weight: var(--weight-bold);
+  color: var(--color-secondary);
+  margin-bottom: var(--space-md);
+}
+
+.contentImage {
+  width: 100%;
+  border-radius: var(--radius-md);
+}
+
+.contentText {
+  font-size: var(--font-sm);
+  color: var(--color-secondary);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.rejectionCard {
+  background-color: #FFEBEE;
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.rejectionCard .sectionTitle {
+  color: #C62828;
+}
+
+.rejectionText {
+  font-size: var(--font-sm);
+  color: #C62828;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.btnApprove {
+  flex: 1;
+  background-color: var(--color-success);
+  color: var(--color-white);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnApprove:hover {
+  opacity: 0.85;
+}
+
+.btnReject {
+  flex: 1;
+  background-color: var(--color-error);
+  color: var(--color-white);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnReject:hover {
+  opacity: 0.85;
+}
+
+.btnApprove:disabled,
+.btnReject:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.emptyText {
+  text-align: center;
+  color: var(--color-gray-400);
+  font-size: var(--font-sm);
+  padding: var(--space-xxl) 0;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+  padding: var(--space-lg);
+}
+
+.modalCard {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  max-width: 420px;
+  width: 100%;
+}
+
+.modalTitle {
+  font-size: var(--font-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-secondary);
+  margin-bottom: var(--space-md);
+}
+
+.modalTextarea {
+  width: 100%;
+  font-size: var(--font-sm);
+  padding: var(--space-md);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: var(--space-md);
+}
+
+.modalTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.modalActions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.modalCancelBtn {
+  flex: 1;
+  background-color: var(--color-gray-200);
+  color: var(--color-secondary);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+}
+
+.modalSubmitBtn {
+  flex: 1;
+  background-color: var(--color-error);
+  color: var(--color-white);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.modalSubmitBtn:hover {
+  opacity: 0.85;
+}
+
+.modalSubmitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .infoRow {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .infoLabel {
+    width: auto;
+  }
+}
