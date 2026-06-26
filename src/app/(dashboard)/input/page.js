@@ -160,7 +160,7 @@ export default function InputPage() {
 [운영]
 금지표현: ${form.bannedWords || "없음"}
 제작범위: ${form.range.join(", ") || "미입력"}
-채널: ${activeChannels.join(", ") || "미입력"}
+채널: ${activeChannels.length > 0 ? activeChannels.map((ch) => `${ch}(${form.channelSettings[ch].contentTypes.join("/")})`).join(", ") : "미입력"}
 광고집행: ${form.hasAd ? `예 (예산: ${form.adBudget || "미입력"})` : "아니오"}
 
 [KPI]
@@ -502,9 +502,9 @@ ${form.kpi || "미입력"}
               )}
             </div>
           </div>
-            <button onClick={handleSubmit} className={styles.saveBtn}>
-              저장하기
-            </button>
+          <button onClick={handleSubmit} className={styles.saveBtn}>
+            저장하기
+          </button>
         </div>
 
         {/* 우측 미리보기 패널 */}

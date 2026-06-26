@@ -16,7 +16,23 @@ export default function NewContentPage() {
   })
   const [status, setStatus] = useState('idle')
   const [result, setResult] = useState(null)
-  const [imageBase64, setImageBase64] = useState(null)
+  const [versions, setVersions] = useState([])
+  const [selectedVersion, setSelectedVersion] = useState(0)
+  const [imageOptions, setImageOptions] = useState([])
+  const [selectedImage, setSelectedImage] = useState(0)
+
+  // "버전 1", "버전 2", "버전 3" 형태의 텍스트를 배열로 분리
+  // 첫 "버전 N" 등장 이전의 서두 텍스트(인사말 등)는 버린다
+  const parseVersions = (text) => {
+    if (!text) return []
+    const firstMarker = text.search(/\*{0,2}버전\s*\d+\*{0,2}/)
+    const body = firstMarker >= 0 ? text.slice(firstMarker) : text
+    const parts = body
+      .split(/\*{0,2}버전\s*\d+\*{0,2}/g)
+      .map((p) => p.replace(/^[-:\s]+/, '').trim())
+      .filter(Boolean)
+    return parts.length > 0 ? parts : [text.trim()]
+  }
 
   // 구글시트에서 고객 목록 불러오기
   useEffect(() => {
@@ -42,7 +58,8 @@ export default function NewContentPage() {
     }
     setStatus('loading')
     setResult(null)
-    setImageBase64(null)
+    setImageOptions([])
+    setSelectedImage(0)
 
     try {
       // 텍스트는 콘텐츠 유형과 무관하게 항상 생성
@@ -62,26 +79,34 @@ export default function NewContentPage() {
         return
       }
       setResult(textData.data)
+      setVersions(parseVersions(textData.data))
+      setSelectedVersion(0)
 
-      // 선택한 유형(이미지/영상/카드뉴스)을 추가로 생성
+      // 선택한 유형(이미지/카드뉴스)을 3장 병렬 생성
       if (form.type === '이미지' || form.type === '카드뉴스') {
-        const response = await fetch('/api/generate-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            clientName: form.client,
-            keyword: form.keyword,
-            channel: form.channel,
-          }),
-        })
-        const data = await response.json()
-        if (data.success) {
-          setImageBase64(`data:${data.image.mimeType};base64,${data.image.base64}`)
-          setStatus('done')
-        } else {
-          alert('생성 실패: ' + data.error)
+        const requests = [1, 2, 3].map(() =>
+          fetch('/api/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              clientName: form.client,
+              keyword: form.keyword,
+              channel: form.channel,
+            }),
+          }).then((res) => res.json())
+        )
+        const results = await Promise.all(requests)
+        const images = results
+          .filter((r) => r.success)
+          .map((r) => `data:${r.image.mimeType};base64,${r.image.base64}`)
+
+        if (images.length === 0) {
+          alert('이미지 생성 실패: ' + (results[0]?.error || '알 수 없는 오류'))
           setStatus('idle')
+          return
         }
+        setImageOptions(images)
+        setStatus('done')
       } else {
         // 영상은 아직 미구현
         setTimeout(() => setStatus('done'), 2000)
@@ -177,16 +202,55 @@ export default function NewContentPage() {
           {status === 'done' && (
             <div className={styles.doneState}>
               <div className={styles.resultPreview}>
-                {/* 텍스트는 콘텐츠 유형과 무관하게 항상 표시 */}
-                {result && (
-                  <p className={styles.resultText}>{result}</p>
+                {/* 텍스트는 버전별로 분리해서 선택 가능하게 표시 */}
+                {versions.length > 0 && (
+                  <div className={styles.versionSection}>
+                    <p className={styles.versionGuide}>👇 아래 3가지 버전 중 하나를 선택하세요</p>
+                    <div className={styles.versionList}>
+                      {versions.map((v, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setSelectedVersion(i)}
+                          className={`${styles.versionCard} ${selectedVersion === i ? styles.versionCardActive : ''}`}
+                        >
+                          <div className={styles.versionHeader}>
+                            <span className={styles.radioCircle}>
+                              {selectedVersion === i && <span className={styles.radioDot} />}
+                            </span>
+                            <span className={styles.versionLabel}>버전 {i + 1}</span>
+                            {selectedVersion === i && (
+                              <span className={styles.versionCheck}>✓ 선택됨</span>
+                            )}
+                          </div>
+                          <p className={styles.versionText}>{v}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )}
-                {(form.type === '이미지' || form.type === '카드뉴스') && imageBase64 && (
-                  <img
-                    src={imageBase64}
-                    alt={`AI 생성 ${form.type}`}
-                    className={styles.resultImage}
-                  />
+                {(form.type === '이미지' || form.type === '카드뉴스') && imageOptions.length > 0 && (
+                  <div className={styles.versionSection}>
+                    <p className={styles.versionGuide}>👇 아래 3가지 이미지 중 하나를 선택하세요</p>
+                    <div className={styles.imageOptionGrid}>
+                      {imageOptions.map((img, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setSelectedImage(i)}
+                          className={`${styles.imageOptionCard} ${selectedImage === i ? styles.imageOptionCardActive : ''}`}
+                        >
+                          <img src={img} alt={`AI 생성 이미지 ${i + 1}`} className={styles.resultImage} />
+                          <div className={styles.imageOptionFooter}>
+                            <span className={styles.radioCircle}>
+                              {selectedImage === i && <span className={styles.radioDot} />}
+                            </span>
+                            <span className={styles.versionLabel}>이미지 {i + 1}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )}
                 {form.type === '영상' && (
                   <div className={styles.videoPlaceholder}>
