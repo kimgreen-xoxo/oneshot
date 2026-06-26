@@ -131,7 +131,10 @@ export default function NewContentPage() {
         const results = await Promise.all(requests);
         const images = results
           .filter((r) => r.success)
-          .map((r) => `data:${r.image.mimeType};base64,${r.image.base64}`);
+          .map((r) => ({
+            preview: `data:${r.image.mimeType};base64,${r.image.base64}`,
+            url: r.imageUrl,
+          }));
 
         if (images.length === 0) {
           alert(
@@ -157,7 +160,7 @@ export default function NewContentPage() {
     if (savedId) return savedId; // 이미 저장됐으면 재사용
 
     const selectedText = versions[selectedVersion] || result;
-    const selectedImg = imageOptions[selectedImage] || "";
+    const selectedImg = imageOptions[selectedImage]?.url || "";
 
     const response = await fetch("/api/contents", {
       method: "POST",
@@ -389,7 +392,7 @@ export default function NewContentPage() {
                             className={`${styles.imageOptionCard} ${selectedImage === i ? styles.imageOptionCardActive : ""}`}
                           >
                             <img
-                              src={img}
+                              src={img.preview}
                               alt={`AI 생성 이미지 ${i + 1}`}
                               className={styles.resultImage}
                               onClick={(e) => {
@@ -505,7 +508,7 @@ export default function NewContentPage() {
           )}
 
           <img
-            src={imageOptions[lightboxIndex]}
+            src={imageOptions[lightboxIndex]?.preview}
             alt={`AI 생성 이미지 ${lightboxIndex + 1}`}
             className={styles.lightboxImage}
             onClick={(e) => e.stopPropagation()}

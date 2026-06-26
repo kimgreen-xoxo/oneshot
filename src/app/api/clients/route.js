@@ -1,45 +1,57 @@
-import { supabase } from '@/lib/supabase'
+import { supabase } from "@/lib/supabase";
 
 // 고객 저장
 export async function POST(request) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
-    const { error } = await supabase.from('clients').insert({
-      client_name: body.clientName || '',
-      industry: body.industry?.join(', ') || '',
-      goal: body.goal?.join(', ') || '',
-      target: body.target || '',
-      keyword: body.keyword || '',
-      region: body.region || '',
-      banned_words: body.bannedWords || '',
-      channels: Object.keys(body.channelSettings || {}).join(', '),
-      kpi: body.kpi || '',
-      schedule: body.schedule || '',
-      publish_time: body.publishTime || '',
-      start_date: body.startDate || '',
-      brand_color: body.brandColor || '',
-      tone: body.tone?.join(', ') || '',
-      ref_accounts: body.refAccounts || '',
-    })
+    const { error } = await supabase.from("clients").insert({
+      client_name: body.clientName || "",
+      industry: body.industry?.join(", ") || "",
+      goal: body.goal?.join(", ") || "",
+      target: body.target || "",
+      keyword: body.keyword || "",
+      region: body.region || "",
+      banned_words: body.bannedWords || "",
+      channels: Object.keys(body.channelSettings || {}).join(", "),
+      kpi: body.kpi || "",
+      schedule: body.schedule || "",
+      publish_time: body.publishTime || "",
+      start_date: body.startDate || "",
+      brand_color: body.brandColor || "",
+      tone: body.tone?.join(", ") || "",
+      ref_accounts: body.refAccounts || "",
+    });
 
-    if (error) throw new Error(error.message)
-    return Response.json({ success: true })
+    if (error) throw new Error(error.message);
+    return Response.json({ success: true });
   } catch (error) {
-    console.error('고객 저장 오류:', error)
-    return Response.json({ success: false, error: error.message }, { status: 500 })
+    console.error("고객 저장 오류:", error);
+    return Response.json(
+      { success: false, error: error.message },
+      { status: 500 },
+    );
   }
 }
 
 // 고객 목록 조회
-export async function GET() {
+// 고객 목록 조회 (clientName으로 단건 필터 가능)
+export async function GET(request) {
   try {
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const { searchParams } = new URL(request.url);
+    const clientName = searchParams.get("clientName");
 
-    if (error) throw new Error(error.message)
+    let query = supabase
+      .from("clients")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (clientName) {
+      query = query.eq("client_name", clientName);
+    }
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
 
     const clients = data.map((row) => ({
       id: row.id,
@@ -59,10 +71,13 @@ export async function GET() {
       brandColor: row.brand_color,
       tone: row.tone,
       refAccounts: row.ref_accounts,
-    }))
+    }));
 
-    return Response.json({ success: true, data: clients })
+    return Response.json({ success: true, data: clients });
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 })
+    return Response.json(
+      { success: false, error: error.message },
+      { status: 500 },
+    );
   }
 }
